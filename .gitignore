@@ -1,0 +1,6 @@
+/src/
+/pkg/
+/.artifacts/
+/*.tar.zst
+/ghostex-*-LICENSE
+__pycache__/

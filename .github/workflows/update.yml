@@ -1,0 +1,61 @@
+name: Check upstream releases
+on:
+  schedule:
+    - cron: '23 7 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+concurrency:
+  group: upstream-update
+  cancel-in-progress: false
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Check and pin the latest stable release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 -m unittest discover -s tests
+          python3 scripts/update.py
+      - name: Detect an update
+        id: update
+        run: |
+          if ! git diff --quiet -- PKGBUILD; then
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Build, test and regenerate metadata
+        if: steps.update.outputs.changed == 'true'
+        run: bash scripts/check.sh --refresh-srcinfo
+      - name: Open a reviewed update
+        if: steps.update.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(awk -F= '/^pkgver=/{print $2}' PKGBUILD)
+          branch="update/ghostex-$version"
+          # Keep an existing PR intact, including any maintainer fixes.
+          if ! git ls-remote --exit-code --heads origin "$branch" > /dev/null; then
+            git switch -c "$branch"
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add PKGBUILD .SRCINFO
+            git commit -m "Update ghostex-bin to $version"
+            git push origin "$branch"
+          fi
+          if [[ $(gh pr list --head "$branch" --state open --json number --jq length) != 0 ]]; then
+            echo "An update PR already exists: $branch"
+            exit 0
+          fi
+          cat > /tmp/pr-body.md <<EOF
+          Package upstream Ghostex $version using the versioned Linux x64 archive.
+
+          The archive checksum, license checksum and .SRCINFO were refreshed. The clean Arch container passed packaging, installation, CLI, shared-library, reinstall and removal checks.
+
+          Review [upstream release notes](https://github.com/maddada/Ghostex/releases/tag/v$version), dependency/license changes, and test the GUI before merging. Merge triggers a fresh check and publishes the recipe to AUR.
+
+          This bot-created PR does not trigger another workflow with GITHUB_TOKEN; validation ran in the upstream-update workflow before this PR was opened.
+          EOF
+          gh pr create --base main --head "$branch" --title "Update ghostex-bin to $version" --body-file /tmp/pr-body.md
