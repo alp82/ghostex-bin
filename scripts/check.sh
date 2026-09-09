@@ -2,6 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 mkdir -p .artifacts
+rm -f .artifacts/ghostex-bin-*.pkg.tar.zst
 docker build --pull -t ghostex-bin-check .ci
 docker run --rm \
   -v "$PWD:/repo:ro" \

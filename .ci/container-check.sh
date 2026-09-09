@@ -25,6 +25,7 @@ gx --help > /out/gx-help.txt
 cmp /out/cli-help.txt /out/gx-help.txt
 ldd /opt/ghostex/Ghostex | tee /out/ldd.txt
 if grep -q 'not found' /out/ldd.txt; then exit 1; fi
+: > /out/cef-ldd.txt
 for binary in /opt/ghostex/ghostex-gpui-runtime /opt/ghostex/ghostex-gpui-cef-helper; do
   ldd "$binary" | tee -a /out/cef-ldd.txt
 done

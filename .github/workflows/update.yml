@@ -45,8 +45,8 @@ jobs:
             git commit -m "Update ghostex-bin to $version"
             git push origin "$branch"
           fi
-          if [[ $(gh pr list --head "$branch" --state open --json number --jq length) != 0 ]]; then
-            echo "An update PR already exists: $branch"
+          if [[ $(gh pr list --head "$branch" --state all --json number --jq length) != 0 ]]; then
+            echo "An update PR already exists (possibly closed): $branch"
             exit 0
           fi
           cat > /tmp/pr-body.md <<EOF
