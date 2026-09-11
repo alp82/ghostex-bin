@@ -4,6 +4,7 @@ on:
     - cron: '23 7 * * *'
   workflow_dispatch:
 permissions:
+  actions: write
   contents: write
   pull-requests: write
 concurrency:
@@ -29,7 +30,7 @@ jobs:
       - name: Build, test and regenerate metadata
         if: steps.update.outputs.changed == 'true'
         run: bash scripts/check.sh --refresh-srcinfo
-      - name: Open a reviewed update
+      - name: Open and merge the update
         if: steps.update.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -52,10 +53,12 @@ jobs:
           cat > /tmp/pr-body.md <<EOF
           Package upstream Ghostex $version using the versioned Linux x64 archive.
 
-          The archive checksum, license checksum and .SRCINFO were refreshed. The clean Arch container passed packaging, installation, CLI, shared-library, reinstall and removal checks.
+          The archive checksum, license checksum and .SRCINFO were refreshed. The clean Arch container passed packaging, installation, CLI, shared-library, reinstall and removal checks, so this PR is merged automatically and the recipe is published to AUR.
 
-          Review [upstream release notes](https://github.com/maddada/Ghostex/releases/tag/v$version), dependency/license changes, and test the GUI before merging. Merge triggers a fresh check and publishes the recipe to AUR.
+          See the [upstream release notes](https://github.com/maddada/Ghostex/releases/tag/v$version). If the published package turns out to be broken, revert this PR on main to publish the previous recipe again.
 
-          This bot-created PR does not trigger another workflow with GITHUB_TOKEN; validation ran in the upstream-update workflow before this PR was opened.
+          Validation ran in the upstream-update workflow before this PR was opened; the merge dispatches the Publish to AUR workflow explicitly because GITHUB_TOKEN pushes do not trigger it.
           EOF
           gh pr create --base main --head "$branch" --title "Update ghostex-bin to $version" --body-file /tmp/pr-body.md
+          gh pr merge "$branch" --squash --delete-branch
+          gh workflow run publish.yml --ref main

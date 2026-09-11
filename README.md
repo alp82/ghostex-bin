@@ -50,17 +50,23 @@ README-only changes.
 2. For a new version, it downloads the archive, calculates SHA-256 and compares
    GitHub's asset digest when available. It also refreshes the versioned license
    checksum, resets `pkgrel`, builds/tests the package and regenerates `.SRCINFO`.
-3. It opens an update PR. Review upstream changes, license changes, runtime
-   dependencies and the actual GUI before merging. A checksum pins bytes; it
-   does not itself establish that a new release is trustworthy.
-4. Merging into `main` runs fresh checks, then **Publish to AUR** uses the
-   dedicated SSH key in the `aur` GitHub environment to push to AUR's `master`.
-   Unchanged packaging produces no AUR commit. Superseded workflows skip
-   publishing. Only `PKGBUILD`, `.SRCINFO` and `LICENSE` go to AUR.
+3. It opens an update PR for the audit trail, merges it immediately with a
+   squash commit, and dispatches **Publish to AUR**. No human review happens
+   before publishing. A checksum pins bytes; it does not itself establish that
+   a new release is trustworthy, so keep an eye on upstream release notes,
+   license changes and runtime dependencies.
+4. **Publish to AUR** runs fresh checks, then uses the dedicated SSH key in the
+   `aur` GitHub environment to push to AUR's `master`. Unchanged packaging
+   produces no AUR commit. Superseded workflows skip publishing. Only
+   `PKGBUILD`, `.SRCINFO` and `LICENSE` go to AUR.
 
-Bot PRs created with `GITHUB_TOKEN` do not trigger another Actions run. The
-update workflow validates before opening the PR; publishing validates again
-after merge. Human-opened PRs use the **Check package** workflow.
+To roll back a bad release, revert the update commit on `main`. That push
+publishes the previous recipe with a bumped `pkgrel` if you increment it.
+
+Pushes made with `GITHUB_TOKEN` do not trigger another Actions run, so the
+update workflow validates before opening the PR and then starts publishing
+through `workflow_dispatch`, which is exempt from that rule. Human-opened PRs
+use the **Check package** workflow.
 
 GitHub repository Actions settings must allow Actions to create pull requests.
 The `aur` environment contains `AUR_SSH_PRIVATE_KEY`; its public key must be
