@@ -1,5 +1,8 @@
 # ghostex-bin
 
+[![AUR version](https://img.shields.io/aur/version/ghostex-bin)](https://aur.archlinux.org/packages/ghostex-bin)
+[![Ghostex release](https://img.shields.io/github/v/release/maddada/Ghostex?label=Ghostex)](https://github.com/maddada/Ghostex/releases/latest)
+
 Arch Linux packaging for the prebuilt x86_64 release of
 [Ghostex](https://github.com/maddada/Ghostex). Maintained by
 [Alp on AUR](https://aur.archlinux.org/account/Alp).
