@@ -1,7 +1,7 @@
 name: Check upstream releases
 on:
   schedule:
-    - cron: '23 7 * * *'
+    - cron: '23 * * * *'
   workflow_dispatch:
 permissions:
   actions: write

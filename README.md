@@ -43,7 +43,7 @@ README-only changes.
 
 ## Release automation
 
-1. **Check upstream releases** runs daily at 07:23 UTC, or manually through
+1. **Check upstream releases** runs hourly at 23 minutes past the hour, or manually through
    GitHub Actions. It queries the upstream releases API and requires the exact
    Linux x64 asset. Drafts, prereleases, downgrades and unexpected versions/URLs
    are rejected. An incomplete release fails and is retried on the next run.
