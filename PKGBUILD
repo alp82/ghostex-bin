@@ -1,6 +1,6 @@
 # Maintainer: Alper Ortac <alportac@gmail.com>
 pkgname=ghostex-bin
-pkgver=11.5.0
+pkgver=11.6.0
 pkgrel=1
 pkgdesc='Native AI agent workspaces with terminals and an embedded browser (prebuilt)'
 arch=('x86_64')
@@ -17,7 +17,7 @@ conflicts=('ghostex')
 options=('!strip' '!debug')
 source=("ghostex-${pkgver}-linux-x64.tar.zst::$url/releases/download/v${pkgver}/ghostex-${pkgver}-linux-x64.tar.zst"
         "ghostex-${pkgver}-LICENSE::https://raw.githubusercontent.com/maddada/Ghostex/v${pkgver}/LICENSE")
-sha256sums=('5ad1c744b53320f7d27e8dc600772f66f3ead6a4fdd49449bac1a6600455970f'
+sha256sums=('760a9057b65743ff5e485cb1b921e43b8d10a9ddc6e7a91e4497e8bb4d4a3b30'
             '50c3e6ee30c68e93ebed3e549770999eaee10b88618588d57c9d5355d0996509')
 
 package() {
